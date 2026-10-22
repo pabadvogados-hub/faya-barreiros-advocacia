@@ -1,0 +1,20 @@
+# Rotinas automaticas em servidor Linux (equivalente ao agendar_tarefas_windows.bat).
+# Ajuste CAMINHO e o python do venv. Horarios no fuso do servidor: conferir (America/Bahia).
+# NAO rode as mesmas rotinas tambem no Windows do escritorio (mensagem em dobro ao cliente).
+
+CAMINHO=/opt/faya-barreiros-advocacia
+PY=/opt/faya-barreiros-advocacia/.venv/bin/python
+
+# Cobranca de documentos faltantes: 09h, 13h, 17h
+0 9,13,17 * * *   cd $CAMINHO && $PY CONTRATACAO/main.py acompanhar --enviar >> logs/contratacao_acompanhar.log 2>&1
+# Varredura das intimacoes (DJEN): 07h30
+30 7 * * *        cd $CAMINHO && $PY CONTROLADORIA/main.py varredura --dias 3 >> logs/controladoria_varredura.log 2>&1
+# Conferencia da manha (funil comercial): seg a sex 08h
+0 8 * * 1-5       cd $CAMINHO && $PY COMERCIAL/main.py painel >> logs/comercial_painel.log 2>&1
+# Relatorio de andamento aos clientes: dias 1 e 16, 08h
+0 8 1,16 * *      cd $CAMINHO && $PY CONTROLADORIA/main.py relatorio-clientes --dias 15 >> logs/controladoria_relatorio_clientes.log 2>&1
+# Financeiro: cobranca seg a sex 10h, inadimplencia seg 08h, honorarios novos seg a sex 18h, fechamento dia 5
+0 10 * * 1-5      cd $CAMINHO && $PY FINANCEIRO/main.py cobranca --enviar >> logs/financeiro_cobranca.log 2>&1
+0 8 * * 1         cd $CAMINHO && $PY FINANCEIRO/main.py inadimplencia >> logs/financeiro_inadimplencia.log 2>&1
+0 18 * * 1-5      cd $CAMINHO && $PY FINANCEIRO/main.py honorarios-novos >> logs/financeiro_honorarios_novos.log 2>&1
+0 8 5 * *         cd $CAMINHO && $PY FINANCEIRO/main.py fechamento >> logs/financeiro_fechamento.log 2>&1

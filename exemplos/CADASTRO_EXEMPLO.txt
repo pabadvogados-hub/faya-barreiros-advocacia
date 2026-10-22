@@ -1,0 +1,16 @@
+# CADASTRO DO CLIENTE - exemplo ficticio (so para testar o sistema)
+
+Telefone: (75) 99999-0000
+Email: carlos.exemplo@email.com
+Estado civil: casado
+Profissao: empresario
+Endereco: Rua Exemplo, 100, Centro, Feira de Santana/BA, CEP 44000-000
+Origem: trafego pago (William)
+Indicante:
+Data do contrato: 20/10/2026
+
+Ente credor: Uniao (Fazenda Nacional / PGFN)
+
+Honorarios entrada: [CONFERIR]
+Honorarios pagamento: [CONFERIR]
+Honorarios exito: [CONFERIR]

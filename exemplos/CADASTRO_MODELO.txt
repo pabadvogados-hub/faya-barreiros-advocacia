@@ -1,0 +1,18 @@
+# CADASTRO DO CLIENTE - modelo em branco. Copie, preencha e use com --cadastro
+# Linha que comeca com # e ignorada. Campo vazio fica como [CONFERIR] no documento.
+
+Telefone:
+Email:
+Estado civil:
+Profissao:
+Endereco:
+Origem:
+Indicante:
+Data do contrato:
+
+# Ente credor: Uniao (PGFN/Receita), Estado, Municipio, INSS... (se vazio, vem da triagem)
+Ente credor:
+
+Honorarios entrada:
+Honorarios pagamento:
+Honorarios exito:

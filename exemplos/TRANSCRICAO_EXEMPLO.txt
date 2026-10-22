@@ -1,0 +1,29 @@
+TRANSCRICAO DA REUNIAO DE FECHAMENTO - CASO FICTICIO (so para testar o sistema)
+Data: 20/10/2026  -  Duracao: 00:14:10
+Participantes: Dr. William (escritorio) e o cliente (dono de uma loja de materiais de construcao)
+
+[00:00] WILLIAM: Carlos, boa tarde! Tudo certo pra conversar agora?
+[00:05] CLIENTE: Boa tarde, doutor. Pode falar, to na loja mas consigo.
+[00:10] WILLIAM: Me conta qual e a situacao da empresa com o fisco.
+[00:16] CLIENTE: Recebi uma carta da PGFN falando que a empresa tem uns cento e oitenta mil em divida
+ativa. Sao debitos de 2018 e 2019, do Simples Nacional, acho eu. A empresa e Simples desde que abri.
+[00:35] WILLIAM: Esses valores o senhor declarou e nao pagou, ou veio algum auto de infracao?
+[00:41] CLIENTE: Acho que foi declarado e a gente nao conseguiu pagar na pandemia. Mas nao tenho
+certeza, o contador anterior cuidava disso e ele saiu.
+[00:55] WILLIAM: Ja existe execucao fiscal?
+[00:58] CLIENTE: Existe. Chegou uma citacao na semana passada, da Justica Federal, aqui em Feira
+de Santana. Falaram que tenho cinco dias pra pagar. O oficial deixou um papel.
+[01:15] WILLIAM: Tem algum parcelamento ativo ou ja teve?
+[01:19] CLIENTE: Em 2021 a gente parcelou uma parte, mas parei de pagar no meio de 2022.
+[01:30] WILLIAM: E tem alguma conta bloqueada, bem penhorado?
+[01:34] CLIENTE: Ainda nao. Mas preciso da certidao negativa pra renovar um contrato com um fornecedor
+grande, e sem ela eles ameacam cortar o credito.
+[01:48] WILLIAM: A empresa fatura quanto por ano, mais ou menos?
+[01:52] CLIENTE: Uns um milhao e duzentos. Tem seis funcionarios.
+[02:05] WILLIAM: Entendi. A gente faz primeiro a analise da origem desses debitos: de onde vieram,
+as datas, o que pode estar prescrito ou nulo, e so depois decide entre defesa, transacao ou parcelamento.
+[02:20] CLIENTE: Perfeito, e o que eu queria. Quanto fica?
+[02:25] WILLIAM: Mando a proposta hoje. A entrada cobre a analise e o prazo da citacao.
+[02:35] CLIENTE: Fechado. Mando o que tiver hoje a noite: contrato social, a carta da PGFN e a citacao.
+[02:50] WILLIAM: O mais urgente e a citacao, por causa do prazo. Manda tambem o relatorio de situacao
+fiscal do e-CAC e o extrato do parcelamento de 2021.
