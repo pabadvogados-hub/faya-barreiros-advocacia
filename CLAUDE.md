@@ -36,6 +36,7 @@ A lista do que falta é **`docs/ONBOARDING.md`**.
 | Lead chega (WhatsApp, Instagram, indicação), qualificação e agendamento | `COMERCIAL/` | `qualificar`, `transcrever`, `lead`, `painel`, `mensagem` |
 | Fechou: contrato, procuração, pasta, cobrança de documentos | `CONTRATACAO/` | `novo`, `enviar`, `acompanhar`, `painel`, `exemplo` |
 | Análise e peças: relatório de CDAs, recursos, embargos, exceção, parecer previdenciário | `JUDICIAL/` | `checklist`, `peca --tipo ...`, `tipos` |
+| **Motor tributário**: relatório de passivo fiscal federal (16 seções) a partir dos PDFs do e-CAC/Regularize/CDAs; consulta de legislação; prospecção PGFN | `TRIBUTARIO/` | `passivo`, `legislacao`, `prospeccao/` |
 | Processo andando: intimações (DJEN), prazos, avisos ao cliente | `CONTROLADORIA/` | `varredura`, `avisos-cliente`, `relatorio-clientes`, `planilha`, `parados`, `finalizar` |
 | Honorários, inadimplência, fechamento (Asaas) | `FINANCEIRO/` | `cobranca`, `inadimplencia`, `fechamento`, `honorarios-novos` |
 
@@ -48,6 +49,7 @@ INTEGRACOES/     asaas, zapsign, dapi_whatsapp, comunica_djen (DJEN/PJe), advbox
 COMERCIAL/       qualificação do lead, transcrição, funil local
 CONTRATACAO/     triagem pela IA, documentos, pasta do cliente, envio, acompanhamento
 JUDICIAL/        checklist de documentos e minutas (tributário e previdenciário)
+TRIBUTARIO/      motor tributário: passivo fiscal federal, base de legislação (CTN, LEF, Leis 10.522/13.988...), prospecção PGFN
 CONTROLADORIA/   varredura do DJEN, prazos, avisos e relatório ao cliente
 FINANCEIRO/      cobrança (Asaas + WhatsApp), inadimplência, fechamento
 BASE_CONHECIMENTO/  DNA_PECAS.md (estilo do briefing aplicado; peças-modelo ainda não chegaram)

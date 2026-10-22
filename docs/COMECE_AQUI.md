@@ -92,6 +92,23 @@ A minuta vai para a pasta do cliente, em `11 PECAS`, com `[CONFERIR]` em tudo qu
 saber e `[INSERIR IMAGEM: ...]` onde a prova é recorte de documento (CDA, tela do e-CAC).
 **A automação não protocola.**
 
+### Motor tributário: passivo fiscal federal (Dr. William)
+
+Colocou os PDFs do e-CAC, do Regularize/PGFN, as CDAs e os extratos de parcelamento/transação na
+pasta `04 SITUACAO FISCAL` (ou `05`, `06`, `07`) do cliente? Rode:
+```
+python TRIBUTARIO/main.py passivo "LOJA EXEMPLO LTDA" --cnpj 00.000.000/0001-00
+```
+Sai o **relatório técnico-estratégico de 16 seções** (débitos da Receita e da PGFN, CDAs, parcelamentos e
+transações, rescisão e penalidade de 2 anos, CAPAG presumida e revisão, execução fiscal, riscos e estratégias),
+em `.docx` e `.md` na pasta `11 PECAS`. Para só ver o que seria lido: `--simular`.
+O prompt tem as regras do escritório: nunca citar edital de memória, A/B da CAPAG sem desconto, e a
+**CAPAG efetiva é irreversível** (a revisão só é recomendada com o ganho de faixa confirmado).
+
+Consultar a lei: `python TRIBUTARIO/main.py legislacao "prescrição" --sigla CTN` (`--listar` mostra a base).
+Prospecção de empresas devedoras na base pública da PGFN: `TRIBUTARIO/prospeccao/LEIA-ME.md`
+(leia os cuidados de OAB e LGPD antes de usar).
+
 ### Controladoria: Bárbara e estagiário (intimações e prazos)
 
 ```

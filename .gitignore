@@ -28,3 +28,11 @@ venv/
 ~$*
 *.xlsx
 !docs/*.xlsx
+
+# Prospeccao PGFN (dados em massa e listas com contato)
+candidatos.json
+empresas_enriquecidas.json
+contatos.csv
+relatorio.md
+!docs/relatorio.md
+data/

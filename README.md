@@ -4,6 +4,7 @@ Sistema do escritório **Faya Barreiros Sociedade Individual de Advocacia** (Sal
 Dra. Faya (previdenciário e cálculos) e do Dr. William Coelho (tributário), para o fluxo que vai do
 lead que chega ao relatório ou à minuta na mesa do advogado: **análise da origem dos débitos**,
 recursos administrativos e judiciais, execução fiscal e pareceres previdenciários.
+Inclui o **motor tributário** (`TRIBUTARIO/`): relatório de passivo fiscal federal a partir dos documentos do e-CAC, Regularize e CDAs, e base de legislação tributária.
 
 - **Como instalar e usar:** [`docs/COMECE_AQUI.md`](docs/COMECE_AQUI.md)
 - **O que ainda falta configurar:** [`docs/ONBOARDING.md`](docs/ONBOARDING.md)
