@@ -97,7 +97,7 @@ def novo(transcricao, docs, cadastro_path, enviar=False, criar_tarefas=False):
         f"{len(triagem.get('gatilhos') or [])} gatilho(s)")
 
     print('4. Pasta do cliente...')
-    base = pasta_cliente.criar(qualif.get('nome'))
+    base = pasta_cliente.criar(qualif.get('nome'), documentos.area_do_caso(triagem, cadastro))
     destino_transc = os.path.join(base, pasta_cliente.CONTRATACAO, 'TRANSCRICAO DA REUNIAO' + os.path.splitext(transcricao)[1])
     shutil.copy2(transcricao, destino_transc)
     for d in docs:

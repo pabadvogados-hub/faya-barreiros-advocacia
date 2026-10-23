@@ -36,3 +36,6 @@ contatos.csv
 relatorio.md
 !docs/relatorio.md
 data/
+
+# Material bruto enviado pela Faya (pecas reais, PDFs, dados de cliente) - so local
+MATERIAL_FAYA/

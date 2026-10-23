@@ -24,7 +24,7 @@ from docx.shared import Cm, Pt, RGBColor
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, RAIZ)
-from config.escritorio import ESCRITORIO, VISUAL  # noqa: E402
+from config.escritorio import ESCRITORIO, SOCIO, TITULAR, VISUAL  # noqa: E402
 
 CONFIG = os.path.join(RAIZ, 'config')
 TIMBRADO = os.path.join(CONFIG, 'timbrado_modelo.docx')
@@ -32,6 +32,7 @@ LOGO = os.path.join(CONFIG, 'logo_escritorio.png')
 MARCA = os.path.join(CONFIG, 'marca_dagua_escritorio.png')
 
 DESTAQUE = RGBColor.from_string(VISUAL['cor_destaque'])
+COR_POR_ADVOGADO = {'william': '101D28'}   # azul-marinho do timbrado dele; o da Dra. Faya e o bordo (cor_destaque)
 TEXTO = RGBColor.from_string(VISUAL['cor_texto'])
 CONFERIR = '[CONFERIR]'
 
@@ -112,17 +113,38 @@ def montar_timbrado(saida=TIMBRADO):
 # ESCRITA
 # ============================================================
 
-def novo_documento():
-    if not os.path.exists(TIMBRADO):
+# Timbrado de cada advogado (enviados em 18/10/2026): imagem de pagina inteira no cabecalho.
+# O William tem faixa grossa em cima e embaixo; as margens abaixo deixam o texto livre dela.
+MARGENS_TIMBRADO = {'william': {'topo': 3.6, 'base': 3.2}}
+_destaque_atual = [DESTAQUE]
+
+
+def caminho_timbrado(advogado=None):
+    """advogado: 'faya' (previdenciario/calculos, padrao do escritorio) ou 'william' (tributario)."""
+    chave = (advogado or 'faya').lower()
+    arq = {'faya': TITULAR, 'william': SOCIO}.get(chave, TITULAR).get('timbrado')
+    caminho = os.path.join(CONFIG, arq) if arq else ''
+    return caminho if caminho and os.path.exists(caminho) else TIMBRADO
+
+
+def novo_documento(advogado=None):
+    """Abre o timbrado do advogado (padrao: Dra. Faya) sem o corpo, pronto para escrever."""
+    caminho = caminho_timbrado(advogado)
+    if not os.path.exists(caminho):
         montar_timbrado()
-    doc = Document(TIMBRADO)
+    doc = Document(caminho)
     corpo = doc.element.body
     for el in list(corpo):
         if el.tag != qn('w:sectPr'):
             corpo.remove(el)
+    _destaque_atual[0] = RGBColor.from_string(COR_POR_ADVOGADO.get((advogado or 'faya').lower(), VISUAL['cor_destaque']))
+    m = MARGENS_TIMBRADO.get((advogado or 'faya').lower())
+    if m:
+        doc.sections[0].top_margin, doc.sections[0].bottom_margin = Cm(m['topo']), Cm(m['base'])
     return doc
 
 
+# ============================================================
 def _formatar(p, alinhamento=WD_ALIGN_PARAGRAPH.JUSTIFY, recuo=False, depois=6, espaco=None):
     p.alignment = alinhamento
     f = p.paragraph_format
@@ -138,7 +160,7 @@ def titulo(doc, texto, tamanho=14, centralizado=True):
     p = doc.add_paragraph()
     _formatar(p, WD_ALIGN_PARAGRAPH.CENTER if centralizado else WD_ALIGN_PARAGRAPH.JUSTIFY, depois=10)
     r = p.add_run(texto.upper())
-    r.bold, r.font.size, r.font.color.rgb = True, Pt(tamanho), DESTAQUE
+    r.bold, r.font.size, r.font.color.rgb = True, Pt(tamanho), _destaque_atual[0]
     return p
 
 
@@ -147,7 +169,7 @@ def secao(doc, texto):
     _formatar(p, depois=4)
     p.paragraph_format.space_before = Pt(10)
     r = p.add_run(texto.upper())
-    r.bold, r.font.color.rgb = True, DESTAQUE
+    r.bold, r.font.color.rgb = True, _destaque_atual[0]
     return p
 
 
@@ -156,7 +178,7 @@ def paragrafo(doc, texto, rotulo=None, recuo=False, negrito=False, tamanho=None,
     _formatar(p, recuo=recuo, espaco=espaco)
     if rotulo:
         r = p.add_run(f'{rotulo}: ')
-        r.bold, r.font.color.rgb = True, DESTAQUE
+        r.bold, r.font.color.rgb = True, _destaque_atual[0]
         if tamanho:
             r.font.size = Pt(tamanho)
     _texto_com_conferir(p, texto or CONFERIR, negrito, tamanho)

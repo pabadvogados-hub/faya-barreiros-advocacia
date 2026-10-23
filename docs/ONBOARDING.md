@@ -6,29 +6,52 @@ vez: cada item liberado já destrava o seu pedaço.
 
 ---
 
-## 1. O que trava o envio HOJE (prioridade)
+## 1. Material que o escritório mandou em 18/10/2026 (já aplicado em 23/10/2026)
+
+| Material | Onde ficou | Estado |
+|---|---|---|
+| Papel timbrado da Dra. Faya (bordô e dourado) | `config/timbrado_faya.docx` | **No ar.** Padrão de todos os documentos do sistema |
+| Papel timbrado do Dr. William (azul-marinho e dourado) | `config/timbrado_william.docx` | **No ar.** Peças e relatórios tributários |
+| Contrato de honorários previdenciário (êxito; êxito + salários) | `DOCS_MODELOS/PREV_CONTRATO_EXITO*.docx` | **No ar**, virou modelo com campos |
+| Procuração ad judicia previdenciária, declaração de hipossuficiência, termo de renúncia (JEF) | `DOCS_MODELOS/` | **No ar** |
+| Contrato de gestão do passivo tributário (William) | `DOCS_MODELOS/TRIB_CONTRATO_GESTAO_PASSIVO*.docx` | **No ar** (versão nova e versão "com resultado") |
+| 27 petições iniciais e 15 relatórios previdenciários; modelos de peça tributária | `BASE_CONHECIMENTO/DNA_PECAS.md` (só a estrutura e as citações) | **DNA ativo** |
+| Legislação previdenciária, CTN, LEF, CTM Salvador, livros | só na máquina do escritório | Não entra no repositório |
+
+Os arquivos que ela mandou eram contratos e peças **de clientes reais**. Viraram modelos com `{{CAMPOS}}` e os
+originais ficam só em `MATERIAL_FAYA/` (bloqueada no `.gitignore`; o repositório é público).
+
+**Ainda trava o envio (por desenho):**
 
 | O que falta | Onde entra | O que destrava |
 |---|---|---|
-| **2 ou 3 peças de cada advogado** (as melhores: relatório de CDA, recurso administrativo, embargos ou exceção, parecer previdenciário), em .docx ou PDF | viram `BASE_CONHECIMENTO/DNA_PECAS.md` (seção 6) e depois se ativa o marcador `<!-- DNA-ATIVO -->` na última linha | a minuta sai no estilo de cada um e com as teses do escritório; hoje sai como ESTRUTURA PROVISÓRIA, sem jurisprudência (o estilo do briefing já está aplicado) |
-| **Papel timbrado oficial** (o briefing diz que a Dra. Faya envia) | `config/timbrado_modelo.docx` e `VISUAL['timbrado_oficial'] = True` | documento sai no timbrado do escritório |
-| **Modelos oficiais de contrato, procuração e declaração** (idem) | `DOCS_MODELOS/` | hoje são provisórios com `[PREENCHER]`, que trava o envio para assinatura |
-| **Honorários**: modelo (fixo, êxito, entrada + êxito?), percentual, sobre o quê incide | `config/escritorio.py` → `HONORARIOS` e cláusula 2ª do contrato | contrato para de travar |
-| **Despesas**: quem paga custas e taxas administrativas | cláusula 4ª do contrato | contrato para de travar |
-| **Regra de rescisão** do contrato | cláusula 5ª do contrato | contrato para de travar |
+| **Procuração do Dr. William** (a que ele usa em contrato tributário) | `DOCS_MODELOS/PROCURACAO_MODELO.docx` (hoje provisória, com `[PREENCHER]`) | procuração tributária sai sem trava |
+| **Conta bancária e chave Pix dos contratos** | `config/.env`: `CONTA_BANCARIA` e `CHAVE_PIX` | o contrato tributário deixa de travar; ficam fora do repositório de propósito |
+| **Dados do caso no contrato tributário**: valor do débito, ente credor, CDAs, condições dos honorários | `CADASTRO.txt` do cliente (`valor_debito`, `lista_cdas`, `honorarios_condicoes`) | contrato do caso |
+| **Estado civil da Dra. Faya** | `config/escritorio.py` -> `TITULAR['estado_civil']` | os contratos dizem "solteira" e a procuração antiga dizia "casada": confirmar |
+| **Endereço comercial no contrato do William** | modelo usa o da Av. Tancredo Neves; o contrato antigo dele trazia outro (Av. Manoel Dias, 1911) | confirmar qual vale |
+| Teses que o escritório **evita** | `BASE_CONHECIMENTO/DNA_PECAS.md`, seção 4 | peças sem essas teses |
+| Conferir as citações da seção 5 do DNA (enunciado e vigência) | `DNA_PECAS.md` | a IA para de marcar `[CONFERIR]` nelas |
+
+**Honorários (já extraídos dos contratos deles, em `config/escritorio.py` -> `HONORARIOS`):**
+Dra. Faya: 4 salários de benefício na implantação + 30% sobre os retroativos (R$ 300 de honorários iniciais na
+variante "êxito + salários"); autorização de desconto de até 30% do líquido mensal.
+Dr. William: entrada + parcelas + êxito de 10% sobre o desconto obtido no administrativo e 20% sobre o débito nas
+execuções fiscais; multa de 10% + juros de 1% ao mês + IGP-M; destituição = 2 salários mínimos; rescisão = 50%.
 
 ---
 
 ## 2. Dados do escritório que faltam
 
-- **CEP** do endereço (Av. Tancredo Neves, 1283, Sala 1001), telefone comercial e site (hoje `[CONFERIR]`).
-- **Número de registro da sociedade na OAB.**
-- **OABs, conferir:** o briefing trouxe "308.385/SP e 64.723/BA - William OAB 64.518/BA". Está assumido
-  Faya = OAB/SP 308.385 e OAB/BA 64.723; William = OAB/BA 64.518. **Confirmar com eles.**
+- **Número de registro da sociedade na OAB** e **site** (hoje `[CONFERIR]`).
+- CEP (41830-021), telefone (71) 99981-1108 e endereço: **já preenchidos** a partir do timbrado e do contrato.
+- **OABs:** conferem com o timbrado (Faya: SP 308.385 e BA 64.723; William: BA 64.518).
 - **Todas as inscrições de OAB que aparecem nas intimações** (`OABS_MONITORADAS` no `.env`; hoje
-  `308385/SP,64723/BA,64518/BA`). Sem isso a varredura do DJEN perde publicação.
+  `308385/SP,64723/BA,64518/BA`).
 - **Nome completo de Bárbara (secretária) e do estagiário.**
-- Cor da marca do escritório (hoje um azul sóbrio provisório).
+- **E-mail oficial:** o timbrado da Dra. Faya mostra `fayabarreiros@gmail.com`, o contrato dela `faya.barreiros@uol.com.br`
+  e o briefing `faya.calculos@gmail.com`. O sistema usa o do contrato nos documentos (`email_contratos`) e o do
+  briefing nas integrações. Confirmar se é isso.
 
 ## 3. Acessos (cada um libera um módulo)
 
@@ -79,11 +102,14 @@ vez: cada item liberado já destrava o seu pedaço.
 - Funil local com as etapas do Kanban.
 - Relatório de triagem a partir da transcrição: débitos e origem, execução fiscal, parcelamentos,
   situação previdenciária, teses candidatas, gatilhos de prazo, gaps e estratégia candidata.
-- Contrato, procuração e declaração preenchidos com os dados do cliente, com trava de envio.
+- Contrato, procuração e declaração **oficiais do escritório**, escolhidos pela área do caso (previdenciário ou tributário), preenchidos com os dados do cliente, com trava de envio.
+- Pasta do cliente separada por área: `PREVIDENCIARIO/` e `TRIBUTARIO/`.
+- Documentos e relatórios no **timbrado oficial** (Dra. Faya por padrão; Dr. William nas peças tributárias).
 - Pasta do cliente criada e organizada, documento classificado na subpasta certa.
 - Cobrança automática dos documentos que faltam, em 3 toques, pelo WhatsApp.
-- Peças: relatório de CDA, recurso administrativo, embargos à execução fiscal, exceção de
-  pré-executividade, petição de andamento e parecer previdenciário (todas para revisão humana).
+- Peças: relatório de CDA, recurso administrativo, embargos, exceção de pré-executividade, petição de andamento,
+  parecer previdenciário, **petição inicial previdenciária, relatório previdenciário, ação declaratória tributária e
+  prescrição intercorrente** (todas para revisão humana, no estilo do DNA real).
 - Varredura do DJEN com classificação das publicações e prazos.
 - Cobrança de honorários, inadimplência e fechamento pelo Asaas.
 - Instalador para Windows e agendador das rotinas.

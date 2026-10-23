@@ -14,14 +14,19 @@ pareceres e relatorios no previdenciario):
     excecao-pre-executividade   excecao de pre-executividade
     peticao-andamento           peticao simples de andamento (prazo, juntada, manifestacao)
     parecer-previdenciario      parecer consultivo / relatorio de planejamento previdenciario
+    peticao-inicial-previdenciaria   inicial contra o INSS/JEF (concessao, revisao, BPC, pensao, incapacidade)
+    relatorio-previdenciario    conferencia de tempo e de RMI, analise de revisao, recalculo (relatorio da Dra. Faya)
+    acao-declaratoria-tributaria     acao declaratoria/anulatoria com tutela (ISS, ITBI, IPTU, ICMS, multa, CDA)
+    prescricao-intercorrente    pedido de reconhecimento da prescricao intercorrente (administrativo ou judicial)
 
 A peca NUNCA e protocolada pela automacao e NUNCA sai do escritorio: ela e gravada na pasta do
 cliente (11 PECAS) para a revisao da Dra. Faya e do Dr. William.
 Regra de ouro do briefing: a IA so decide a estrategia sozinha em casos simples e padronizados e
 em peticoes de andamento. Todo o resto sai para revisao.
 
-TRAVA DO DNA: enquanto BASE_CONHECIMENTO/DNA_PECAS.md nao tiver as pecas-modelo reais, a peca sai
-marcada como ESTRUTURA PROVISORIA, sem jurisprudencia e com [CONFERIR] nos pontos de estilo.
+TRAVA DO DNA: a peca so sai sem o aviso de ESTRUTURA PROVISORIA quando BASE_CONHECIMENTO/DNA_PECAS.md
+tem o marcador DNA-ATIVO (ativo desde 23/10/2026, a partir das pecas-modelo da Dra. Faya e do Dr. William).
+Jurisprudencia: so a da secao 5 do DNA; o resto sai com [CONFERIR: jurisprudencia].
 """
 import argparse
 import json
@@ -37,6 +42,8 @@ import ia  # noqa: E402
 sys.path.insert(0, ambiente.RAIZ)
 sys.path.insert(0, os.path.join(ambiente.RAIZ, 'CONTRATACAO'))
 from config.escritorio import CHECKLIST_DOCUMENTOS, ESCRITORIO, SOCIO, TITULAR  # noqa: E402
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from tipos_modelo import TIPOS_PREV_E_TRIB  # noqa: E402
 
 MODELO = os.getenv('MODELO_PECAS', 'claude-opus-5')
 AVISO_PROVISORIO = (
@@ -59,7 +66,7 @@ ESTILO_WILLIAM = (
 TIPOS = {
     'relatorio-cda': {
         'titulo': 'RELATORIO DE ANALISE DE ORIGEM DOS DEBITOS',
-        'autor': ESTILO_WILLIAM,
+        'autor': ESTILO_WILLIAM, 'advogado': 'william',
         'estrutura': (
             'I - IDENTIFICACAO DO CONTRIBUINTE E DOS DEBITOS (quadro: CDA/inscricao, tributo, periodo, valor original, '
             'valor atual, situacao)\n'
@@ -72,7 +79,7 @@ TIPOS = {
     },
     'recurso-administrativo': {
         'titulo': 'RECURSO ADMINISTRATIVO',
-        'autor': ESTILO_WILLIAM,
+        'autor': ESTILO_WILLIAM, 'advogado': 'william',
         'estrutura': (
             'I - ENDERECAMENTO E QUALIFICACAO\nII - TEMPESTIVIDADE\nIII - SINTESE DO PROCESSO E DA DECISAO RECORRIDA\n'
             'IV - PRELIMINARES (nulidades, decadencia, prescricao)\nV - MERITO (fato gerador, base de calculo, '
@@ -80,7 +87,7 @@ TIPOS = {
     },
     'embargos-execucao': {
         'titulo': 'EMBARGOS A EXECUCAO FISCAL',
-        'autor': ESTILO_WILLIAM,
+        'autor': ESTILO_WILLIAM, 'advogado': 'william',
         'estrutura': (
             'I - ENDERECAMENTO E QUALIFICACAO\nII - TEMPESTIVIDADE E GARANTIA DO JUIZO\nIII - SINTESE DA EXECUCAO\n'
             'IV - PRELIMINARES E NULIDADES DA CDA\nV - PRESCRICAO, DECADENCIA E MERITO\nVI - EFEITO SUSPENSIVO '
@@ -88,7 +95,7 @@ TIPOS = {
     },
     'excecao-pre-executividade': {
         'titulo': 'EXCECAO DE PRE-EXECUTIVIDADE',
-        'autor': ESTILO_WILLIAM,
+        'autor': ESTILO_WILLIAM, 'advogado': 'william',
         'estrutura': (
             'I - CABIMENTO (materia cognoscivel de oficio e prova pre-constituida)\nII - SINTESE DA EXECUCAO\n'
             'III - DA MATERIA ARGUIDA (prescricao, decadencia, nulidade da CDA, ilegitimidade etc., so o que a '
@@ -96,12 +103,12 @@ TIPOS = {
     },
     'peticao-andamento': {
         'titulo': 'PETICAO',
-        'autor': ESTILO_FAYA,
+        'autor': ESTILO_FAYA, 'advogado': 'faya',
         'estrutura': 'Peca curta e objetiva: enderecamento, referencia ao ato, requerimento claro, fecho.',
     },
     'parecer-previdenciario': {
         'titulo': 'PARECER / RELATORIO PREVIDENCIARIO',
-        'autor': ESTILO_FAYA,
+        'autor': ESTILO_FAYA, 'advogado': 'faya',
         'estrutura': (
             'I - DADOS DO SEGURADO E OBJETO DA CONSULTA\nII - HISTORICO CONTRIBUTIVO (quadro com vinculos, '
             'periodos, tempo de contribuicao, carencia - a partir do CNIS e da CTPS)\nIII - REGRAS APLICAVEIS '
@@ -110,6 +117,8 @@ TIPOS = {
             'V - CONCLUSAO E RECOMENDACAO'),
     },
 }
+
+TIPOS.update(TIPOS_PREV_E_TRIB)   # tipos montados a partir das pecas-modelo (JUDICIAL/tipos_modelo.py)
 
 
 def dna():
@@ -123,8 +132,12 @@ def tem_pecas_reais():
 
 def caso_do_cliente(nome):
     import pasta_cliente as pc
-    base = os.path.join(pc.raiz_clientes(), pc.PASTA_AREA, pc.nome_pasta(nome))
-    caso = pc.ler_caso(base)
+    caso = None
+    for area in dict.fromkeys([pc.PASTA_AREA, *pc.PASTA_AREAS.values()]):   # tributario e previdenciario
+        base = os.path.join(pc.raiz_clientes(), area, pc.nome_pasta(nome))
+        caso = pc.ler_caso(base)
+        if caso:
+            break
     if not caso:
         raise SystemExit(f'Nao achei o caso.json em {pc.caminho_caso(base)}.\n'
                          'Rode antes: python CONTRATACAO/main.py novo ...')

@@ -109,7 +109,7 @@ def _inline(texto):
 
 def markdown_para_docx(texto, titulo_doc):
     import docx_escritorio as d
-    doc = d.novo_documento()
+    doc = d.novo_documento('william')   # timbrado do Dr. William (area tributaria)
     d.titulo(doc, titulo_doc)
     linhas = texto.splitlines()
     i = 0

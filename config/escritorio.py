@@ -15,11 +15,11 @@ ESCRITORIO = {
     'razao_social': 'FAYA BARREIROS SOCIEDADE INDIVIDUAL DE ADVOCACIA',
     'cnpj': '67.928.823/0001-52',
     'oab_sociedade': '[CONFERIR]',     # registro da sociedade na OAB
-    'endereco': 'Av. Tancredo Neves, 1283, Sala 1001, Salvador/BA, CEP [CONFERIR]',
+    'endereco': 'Avenida Tancredo Neves, 1283, Edif. Empresarial Ômega, Sala 1001, Caminho das Árvores, Salvador/BA, CEP 41830-021',
     'endereco_timbrado': 'Av. Tancredo Neves, 1283 - Sala 1001',
     'cidade': 'Salvador',
     'uf': 'BA',
-    'telefone': '[CONFERIR]',          # telefone fixo/comercial que vai no rodape
+    'telefone': '(71) 99981-1108',     # o mesmo da Dra. Faya: e o que vai no rodape do timbrado dela
     'whatsapp': '(71) 99981-1108',     # Dra. Faya
     'email': 'faya.calculos@gmail.com',
     'site': '[CONFERIR]',
@@ -30,8 +30,11 @@ ESCRITORIO = {
 # o Dr. William atua na area tributaria e tem a propria carteira de clientes.
 TITULAR = {
     'nome': 'Faya Milla Magalhães Mascarenhas Barreiros',
-    'oab': 'OAB/SP 308.385 e OAB/BA 64.723',   # [CONFERIR] a ordem das inscricoes no briefing era ambigua
-    'email': 'faya.calculos@gmail.com',
+    'oab': 'OAB/SP 308.385 e OAB/BA 64.723',   # confere com o timbrado e com o contrato dela
+    'email': 'faya.calculos@gmail.com',        # e-mail de trabalho do sistema (briefing)
+    'email_contratos': 'faya.barreiros@uol.com.br',   # e-mail que ela usa nos contratos e procuracoes
+    'estado_civil': 'solteira',  # [CONFERIR] contratos dizem solteira; a procuracao antiga dizia casada
+    'timbrado': 'timbrado_faya.docx',
 }
 
 SOCIO = {
@@ -39,6 +42,8 @@ SOCIO = {
     'oab': 'OAB/BA 64.518',
     'email': 'williamcoelho.tributario@gmail.com',
     'whatsapp': '(71) 99720-2036',
+    'email_contratos': 'contato.williamcoelho@uol.com.br',
+    'timbrado': 'timbrado_william.docx',
 }
 
 # Advogados que constam na procuracao (outorgados).
@@ -54,11 +59,12 @@ VISUAL = {
     'fonte': 'Times New Roman',
     'fonte_rodape': 'Calibri',
     'tamanho': 12,
-    'cor_destaque': '1F3864',   # azul sobrio - [CONFERIR] cor da marca
+    'cor_destaque': '4E151C',   # bordo do timbrado da Dra. Faya (o do Dr. William e azul-marinho 101D28)
     'cor_texto': '20201F',
     'espacamento': 1.5,
     'recuo_primeira_linha_cm': 1.25,
-    'timbrado_oficial': False,  # vira True quando config/timbrado_modelo.docx for o do escritorio
+    'timbrado_oficial': True,   # config/timbrado_faya.docx e timbrado_william.docx (enviados em 18/10/2026)
+    'cor_dourado': 'DCB17E',
 }
 
 # Prazos internos do fluxo. [CONFERIR] com o escritorio: o briefing nao deu numeros.
@@ -116,7 +122,8 @@ CHECKLIST_DOCUMENTOS = [
 # Estrutura da pasta do cliente. Segue o desenho do briefing: pastas separadas por area
 # (previdenciario x tributario) e, dentro, clientes do escritorio x avulsos (calculos e parcerias).
 # A esteira de contratacao trabalha numa area por vez: a area padrao e TRIBUTARIO (carro-chefe).
-PASTA_AREA = 'TRIBUTARIO'
+PASTA_AREA = 'TRIBUTARIO'   # area padrao; o caso previdenciario vai para PASTA_AREAS['PREVIDENCIARIO']
+PASTA_AREAS = {'TRIBUTARIO': 'TRIBUTARIO', 'PREVIDENCIARIO': 'PREVIDENCIARIO'}
 SUBPASTAS_CLIENTE = [
     '00 CONTRATACAO',
     '01 DOCUMENTOS PESSOAIS',
@@ -133,10 +140,25 @@ SUBPASTAS_CLIENTE = [
     '12 PROTOCOLOS',
 ]
 
-# Honorarios padrao. [CONFERIR]: o briefing nao falou de honorarios.
+# Honorarios praticados (tirados dos contratos que o escritorio mandou em 18/10/2026).
+# Cada contrato leva os valores do caso; aqui fica a POLITICA, que o sistema sugere e a advogada confirma.
 HONORARIOS = {
-    'modelo': '[CONFERIR]',
-    'percentual_exito': 0,      # [CONFERIR]
-    'entrada': 0,
-    'observacao': 'Modelo de honorarios nao informado no briefing (honorarios + exito?). [CONFERIR]',
+    'PREVIDENCIARIO': {   # Dra. Faya
+        'implantacao': '4 salários de benefícios',        # sobre a RMI calculada pelo INSS, se concedido
+        'exito': '30% (trinta por cento)',                # sobre os valores retroativos, inclusive RPV/precatorio
+        'iniciais': 'R$ 300,00 (trezentos reais)',        # analise de viabilidade, so na variante "exito + salarios"
+        'desconto_em_beneficio': '30% do liquido mensal',  # clausula 3 do contrato (autorizacao de desconto)
+    },
+    'TRIBUTARIO': {       # Dr. William
+        'modelo': 'entrada + parcelas + exito sobre o desconto obtido',
+        'exito_administrativo': '10% sobre o desconto obtido no processo administrativo',
+        'exito_judicial': '20% sobre o valor do debito nas execucoes fiscais',
+        'multa_atraso': '10% + juros de 1% ao mes + IGP-M',
+        'destituicao': '2 salarios minimos',
+        'rescisao': '50% do valor do contrato, em parcela unica (aviso previo de 30 dias)',
+        'base_legal': 'art. 36 do Codigo de Etica e Disciplina da OAB',
+    },
 }
+
+# Dados bancarios dos contratos: NAO ficam aqui (repositorio publico). Ficam no config/.env:
+#   CONTA_BANCARIA="Banco ... - Agencia ... - Conta ... beneficiario: ..."   CHAVE_PIX="..."

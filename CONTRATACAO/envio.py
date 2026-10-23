@@ -43,6 +43,14 @@ def travas(documentos):
     return problemas
 
 
+def _area_da_pasta(documentos):
+    """Tributario ou Previdenciario: a pasta acima da pasta do cliente (.../AREA/NOME/00 CONTRATACAO/arq.docx)."""
+    try:
+        return os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(documentos[0]['arquivo'])))))
+    except (IndexError, KeyError, TypeError):
+        return PASTA_AREA
+
+
 def assinatura(caso, documentos):
     if not _tem('ZAPSIGN_API_TOKEN'):
         print('   ZapSign: sem ZAPSIGN_API_TOKEN no .env, pulando.')
@@ -71,7 +79,7 @@ def assinatura(caso, documentos):
                                             send_whatsapp=False))
         try:
             out = criar_documento(f"{nome} - {d['documento']}", b64, signers,
-                                  folder_path=f'/{PASTA_AREA}/{nome}/', external_id=caso.get('id', ''))
+                                  folder_path=f'/{_area_da_pasta(documentos)}/{nome}/', external_id=caso.get('id', ''))
         except Exception as e:
             print(f"   ERRO ZapSign em {d['documento']}: {e}")
             continue

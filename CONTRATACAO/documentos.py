@@ -20,14 +20,26 @@ from relatorio_triagem import endereco_completo  # noqa: E402
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, RAIZ)
-from config.escritorio import ESCRITORIO, OUTORGADOS, PRAZOS, TITULAR  # noqa: E402
+from config.escritorio import ESCRITORIO, HONORARIOS, OUTORGADOS, PRAZOS, SOCIO, TITULAR  # noqa: E402
 
 MODELOS = os.path.join(RAIZ, 'DOCS_MODELOS')
-DOCUMENTOS = [
-    ('Contrato de Honorarios', 'CONTRATO_HONORARIOS_MODELO.docx'),
-    ('Procuracao', 'PROCURACAO_MODELO.docx'),
-    ('Declaracao de Hipossuficiencia', 'DECLARACAO_HIPOSSUFICIENCIA_MODELO.docx'),
-]
+# Modelos oficiais do escritorio (enviados em 18/10/2026), por area. Contrato, procuracao e declaracao
+# da Dra. Faya (previdenciario) e contrato de gestao do passivo do Dr. William (tributario).
+DOCUMENTOS_POR_AREA = {
+    'PREVIDENCIARIO': [
+        ('Contrato de Honorarios', 'PREV_CONTRATO_EXITO.docx'),
+        ('Procuracao', 'PROCURACAO_PREVIDENCIARIA_MODELO.docx'),
+        ('Declaracao de Hipossuficiencia', 'DECLARACAO_HIPOSSUFICIENCIA_MODELO.docx'),
+    ],
+    'TRIBUTARIO': [
+        ('Contrato de Honorarios', 'TRIB_CONTRATO_GESTAO_PASSIVO.docx'),
+        ('Procuracao', 'PROCURACAO_MODELO.docx'),   # PROVISORIA: o Dr. William ainda nao mandou a dele
+    ],
+}
+# Variantes escolhidas pelo cadastro (chave: valor no CADASTRO.txt).
+CONTRATO_EXITO_SALARIOS = 'PREV_CONTRATO_EXITO_SALARIOS.docx'   # "Contrato: exito e salarios" (cobra R$ 300 iniciais)
+CONTRATO_TRIB_COM_RESULTADO = 'TRIB_CONTRATO_GESTAO_PASSIVO_COM_RESULTADO.docx'   # "Contrato: com resultado"
+TERMO_RENUNCIA = ('Termo de Renuncia (JEF)', 'PREV_TERMO_RENUNCIA_JEF.docx')       # "Juizado federal: sim"
 MESES = ['janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro',
          'outubro', 'novembro', 'dezembro']
 PENDENCIA = re.compile(r'\[(?:PREENCHER|CONFERIR)[^\]]*\]')
@@ -94,11 +106,32 @@ def proximo_numero_contrato():
     return f'{controle[ano]:03d}/{ano}'
 
 
+def area_do_caso(triagem, cadastro):
+    """PREVIDENCIARIO ou TRIBUTARIO. AMBOS e nao informado seguem TRIBUTARIO (carro-chefe)."""
+    bruto = (cadastro.get('area') or triagem.get('area') or '').upper()
+    return 'PREVIDENCIARIO' if bruto.startswith('PREV') else 'TRIBUTARIO'
+
+
+def documentos_do_caso(area, cadastro):
+    docs = list(DOCUMENTOS_POR_AREA[area])
+    variante = (cadastro.get('contrato') or '').lower()
+    if area == 'PREVIDENCIARIO' and 'sal' in variante:
+        docs[0] = (docs[0][0], CONTRATO_EXITO_SALARIOS)
+    if area == 'TRIBUTARIO' and 'resultado' in variante:
+        docs[0] = (docs[0][0], CONTRATO_TRIB_COM_RESULTADO)
+    if area == 'PREVIDENCIARIO' and (cadastro.get('juizado_federal') or '').lower() in ('sim', 's', 'true', '1'):
+        docs.append(TERMO_RENUNCIA)
+    return docs
+
+
 def montar_campos(qualif, triagem, cadastro):
     h = triagem.get('honorarios') or {}
     ente = cadastro.get('ente') or entes(triagem)
     orgao = qualif.get('orgao_emissor', '')
-    return {
+    area = area_do_caso(triagem, cadastro)
+    hp, ht = HONORARIOS['PREVIDENCIARIO'], HONORARIOS['TRIBUTARIO']
+    deb = [d for d in (triagem.get('debitos') or []) if (d.get('identificacao') or '').strip()]
+    campos = {
         'NOME': (qualif.get('nome') or '').upper(),
         'NACIONALIDADE': qualif.get('nacionalidade', ''),
         'ESTADO_CIVIL': qualif.get('estado_civil', ''),
@@ -126,7 +159,33 @@ def montar_campos(qualif, triagem, cadastro):
         'ESCRITORIO_CNPJ': ESCRITORIO['cnpj'],
         'ESCRITORIO_ENDERECO': ESCRITORIO['endereco'],
         'ESCRITORIO_EMAIL': ESCRITORIO['email'],
+        'CIDADE': ESCRITORIO['cidade'],
+        'DATA_NASCIMENTO': qualif.get('data_nascimento', ''),
+        'TITULAR_EMAIL': TITULAR['email_contratos'],
+        'TITULAR_ESTADO_CIVIL': TITULAR['estado_civil'],
+        # previdenciario (Dra. Faya): politica de honorarios em config/escritorio.py
+        'HONORARIOS_IMPLANTACAO': cadastro.get('honorarios_implantacao') or hp['implantacao'],
+        'HONORARIOS_INICIAIS': cadastro.get('honorarios_iniciais') or hp['iniciais'],
+        'OBJETO_ACAO': cadastro.get('objeto_acao') or cadastro.get('objeto') or '',
+        # tributario (Dr. William): empresa contratante e dados do contrato
+        'CNPJ': cadastro.get('cnpj') or qualif.get('cnpj', ''),
+        'REPRESENTANTE_NOME': (cadastro.get('representante_nome') or qualif.get('nome') or '').upper(),
+        'REPRESENTANTE_CPF': cadastro.get('representante_cpf') or qualif.get('cpf', ''),
+        'REPRESENTANTE_QUALIFICACAO': cadastro.get('representante_qualificacao') or ', '.join(
+            x for x in (qualif.get('nacionalidade'), qualif.get('estado_civil'), qualif.get('profissao'),
+                        f"RG {qualif['rg']}" if qualif.get('rg') else '',
+                        f"CPF {qualif['cpf']}" if qualif.get('cpf') else '') if x),
+        'LISTA_CDAS': cadastro.get('lista_cdas') or ', '.join(d['identificacao'] for d in deb),
+        'VALOR_DEBITO': cadastro.get('valor_debito') or '',
+        'PRAZO_ADESAO': cadastro.get('prazo_adesao') or '',
+        'HONORARIOS_CONDICOES': cadastro.get('honorarios_condicoes') or '',
+        'CONTA_BANCARIA': os.getenv('CONTA_BANCARIA', ''),
+        'CHAVE_PIX': os.getenv('CHAVE_PIX', ''),
     }
+    if area == 'PREVIDENCIARIO':
+        campos['OBJETO'] = cadastro.get('objeto') or ''
+        campos['HONORARIOS_EXITO'] = campos['HONORARIOS_EXITO'] or hp['exito']
+    return campos
 
 
 def gerar(base, qualif, triagem, cadastro):
@@ -134,7 +193,8 @@ def gerar(base, qualif, triagem, cadastro):
     campos['NUMERO_CONTRATO'] = proximo_numero_contrato()
     nome = nome_pasta(qualif.get('nome'))
     gerados = []
-    for titulo_doc, modelo in DOCUMENTOS:
+    area = area_do_caso(triagem, cadastro)
+    for titulo_doc, modelo in documentos_do_caso(area, cadastro):
         caminho_modelo = os.path.join(MODELOS, modelo)
         if not os.path.exists(caminho_modelo):
             print(f'   AVISO: modelo {modelo} nao encontrado em DOCS_MODELOS/')

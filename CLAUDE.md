@@ -11,9 +11,14 @@
 > Quer rodar na **nuvem**. Não usa ADVBOX, Google Workspace nem CRM de WhatsApp.
 
 ## Estado do projeto
-Ambiente montado em **22/10/2026** a partir do briefing de 18/10/2026. Tudo que o briefing não trouxe
-está marcado com `[CONFERIR]` ou `[PREENCHER]` e **trava o envio** de propósito.
+Ambiente montado em **22/10/2026** a partir do briefing de 18/10/2026 e **completado em 23/10/2026** com o material
+que a Dra. Faya e o Dr. William enviaram: timbrados oficiais dos dois, contratos, procuração e declaração oficiais,
+DNA das peças. Tudo que ainda não veio está marcado com `[CONFERIR]` ou `[PREENCHER]` e **trava o envio** de propósito.
 A lista do que falta é **`docs/ONBOARDING.md`**.
+
+**Duas áreas, dois advogados.** Previdenciário = Dra. Faya (timbrado bordô, padrão do sistema). Tributário = Dr. William
+(timbrado azul-marinho; `novo_documento('william')`). A pasta do cliente nasce em `PREVIDENCIARIO/` ou `TRIBUTARIO/` e
+o contrato certo sai pela área (`CONTRATACAO/documentos.py`, `docs/CAMPOS_DOS_MODELOS.md`).
 
 ## Regra de ouro
 - **A IA não protocola e não envia nada ao cliente nem ao processo sem flag explícita.**
@@ -52,8 +57,8 @@ JUDICIAL/        checklist de documentos e minutas (tributário e previdenciári
 TRIBUTARIO/      motor tributário: passivo fiscal federal, base de legislação (CTN, LEF, Leis 10.522/13.988...), prospecção PGFN
 CONTROLADORIA/   varredura do DJEN, prazos, avisos e relatório ao cliente
 FINANCEIRO/      cobrança (Asaas + WhatsApp), inadimplência, fechamento
-BASE_CONHECIMENTO/  DNA_PECAS.md (estilo do briefing aplicado; peças-modelo ainda não chegaram)
-DOCS_MODELOS/    contrato, procuração, declaração (PROVISÓRIOS - travam o envio)
+BASE_CONHECIMENTO/  DNA_PECAS.md (DNA ativo: estrutura e citações das peças reais; o texto delas fica em MATERIAL_FAYA/, fora do git)
+DOCS_MODELOS/    contratos, procurações, declaração e termo de renúncia OFICIAIS (campos {{...}}); só a procuração tributária ainda é provisória
 config/          escritorio.py, equipe.py, .env (não versionado)
 deploy/          instalador Windows, agendador, gerador dos modelos provisórios, cron para servidor
 SAIDA/           relatórios gerados (não versionado: tem dado de cliente)
@@ -69,8 +74,8 @@ CLIENTES/        pastas dos clientes (não versionado)
    OneDrive (rclone) ou usar a Microsoft Graph API. Ver `docs/DEPLOY_NUVEM.md`.
 3. **Assinatura:** o escritório assina dentro da Tramitação Inteligente; o código usa ZapSign. Sem
    `ZAPSIGN_API_TOKEN` os documentos ficam prontos na pasta para assinar do jeito que o escritório já faz.
-4. **Áreas:** a esteira de contratação trabalha uma área por vez (`PASTA_AREA` em `config/escritorio.py`,
-   hoje `TRIBUTARIO`). A área previdenciária usa a mesma esteira trocando essa linha.
+4. **Áreas:** resolvido em 23/10/2026. A esteira escolhe a área pelo cadastro/triagem (`PREVIDENCIARIO` ou
+   `TRIBUTARIO`; `AMBOS` segue tributário) e usa o contrato certo.
 
 ## Primeiros passos na máquina do escritório
 ```
@@ -85,4 +90,6 @@ python CONTRATACAO/main.py exemplo        (teste com caso fictício)
 - Não colocar chave de API, token ou senha em arquivo versionado: tudo no `config/.env`.
 - Não apagar os `[PREENCHER]` dos modelos sem o texto oficial do escritório - eles são a trava.
 - Não subir para este repositório nada com dado real de cliente (nome, CPF, CNPJ, CDA, documento).
+  Os arquivos que o escritório manda (contratos e peças reais) ficam em `MATERIAL_FAYA/` (ignorada pelo git);
+  só sobe o que virou modelo com `{{CAMPOS}}`. Conta bancária e Pix dos contratos ficam no `config/.env`.
   O repositório é **público**: serve para instalar o sistema em qualquer máquina do escritório.

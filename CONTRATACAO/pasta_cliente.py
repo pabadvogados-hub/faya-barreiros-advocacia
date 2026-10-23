@@ -27,7 +27,7 @@ from datetime import datetime
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, RAIZ)
-from config.escritorio import CHECKLIST_DOCUMENTOS, PASTA_AREA, SUBPASTAS_CLIENTE  # noqa: E402
+from config.escritorio import CHECKLIST_DOCUMENTOS, PASTA_AREA, PASTA_AREAS, SUBPASTAS_CLIENTE  # noqa: E402
 
 DOCS = 'DOCUMENTOS DO CLIENTE'
 CONTRATACAO = SUBPASTAS_CLIENTE[0]
@@ -48,8 +48,9 @@ def raiz_clientes():
     return os.getenv('PASTA_CLIENTES_RAIZ') or os.path.join(RAIZ, 'CLIENTES')
 
 
-def criar(nome):
-    base = os.path.join(raiz_clientes(), PASTA_AREA, nome_pasta(nome))
+def criar(nome, area=None):
+    """area: 'TRIBUTARIO' ou 'PREVIDENCIARIO' (pastas separadas, como no briefing). Padrao: PASTA_AREA."""
+    base = os.path.join(raiz_clientes(), PASTA_AREAS.get((area or '').upper(), PASTA_AREA), nome_pasta(nome))
     for sub in SUBPASTAS_CLIENTE:
         os.makedirs(os.path.join(base, sub), exist_ok=True)
     for item in CHECKLIST_DOCUMENTOS:
@@ -134,13 +135,14 @@ def salvar_caso(base, caso):
 
 
 def listar_casos():
-    area = os.path.join(raiz_clientes(), PASTA_AREA)
-    if not os.path.isdir(area):
-        return []
     casos = []
-    for nome in sorted(os.listdir(area)):
-        base = os.path.join(area, nome)
-        caso = ler_caso(base)
-        if caso:
-            casos.append((base, caso))
+    for pasta_area in dict.fromkeys([PASTA_AREA, *PASTA_AREAS.values()]):
+        area = os.path.join(raiz_clientes(), pasta_area)
+        if not os.path.isdir(area):
+            continue
+        for nome in sorted(os.listdir(area)):
+            base = os.path.join(area, nome)
+            caso = ler_caso(base)
+            if caso:
+                casos.append((base, caso))
     return casos
